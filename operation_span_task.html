@@ -1,0 +1,371 @@
+<html>
+  <head>
+    <title>WM operation span task</title>
+    <script src="jspsych-6.0.4/jspsych.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-html-button-operationspan.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-operation-span-recall.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link href="jspsych-6.0.4/css/jspsych_operationspan.css" rel="stylesheet" type="text/css"></link>
+  </head>
+  <body></body>
+  <script>
+
+  /*
+      This is a web-based operation span working memory test.
+      It is modelled after the operation span test described in Oswald et al (2014) [https://link.springer.com/article/10.3758/s13428-014-0543-2].
+      However, users can easily customize this test for their own purposes.
+      Easily customizable variables have been listed below. For further changes to the test, knowledge of JavaScipt may be required.
+
+      For smooth functioning of the test, make sure all the associated github files within the repository have been downloaded (especially the folder named 'jspsych-6.0.4').
+      Results from this test will be automatically downloaded into the downloads folder of your desktop.
+
+      For further details, please refer to the README.
+  */
+
+  //----- CUSTOMIZABLE VARIABLES -----------------------------------------
+
+    minSetSize = 4 // starting length of each trial (i.e., min number of letters in a trial)
+    maxSetSize = 7 // ending length of each trial (i.e., max number of letters in a trial)
+    repSet = 3 // number of times each set size should be repeated
+    randomize = true // present different set sizes in random order. if false, set sizes will be presented in ascending order
+    file_name = null // file name for data file. if null, a default name consisting of the participant ID and a unique number is chosen.
+    local = true // save the data file locally.
+                // If this test is being run online (e.g., on MTurk), true will cause the file to be downloaded to the participant's computer.
+                // If this test is on a server, and you wish to save the data file to that server, change this to false.
+                // If changed to false, ensure that the php file (its in the folder!) and the "data" folder has also been appropriately uploaded to the server.
+                // Incase of problems, feel free to contact me :)
+
+  //----------------------------------------------------------------------
+
+  var possibleLetters = ["F","H","J","K","L","N","P","Q","R","S","T","V"]
+
+  var setSizes = []    // different set sizes
+  for (var i = minSetSize; i<= maxSetSize; i++){
+    for (var r = 1; r<= repSet; r++){
+      setSizes.push(i)
+    }
+  }
+  //console.log(setSizes)
+
+  var nTrials = setSizes.length // number of trials
+
+  if (randomize){
+    setSizes = jsPsych.randomization.sampleWithoutReplacement(setSizes, nTrials)} // shuffle through the set sizes
+
+  var letterMemDemoArray = [3,4,5]  // set sizes of initial demo trials
+  var fullDemoArray = [3,4]       // set sizes of full demo trials
+  var nPracticeTrials = letterMemDemoArray.length
+  var nfullDemo = fullDemoArray.length
+  var nCogLoadDemo = 0
+
+  var setSizes = letterMemDemoArray.concat(fullDemoArray, setSizes)
+  var totalTrials = setSizes.length //total number of trials in the entire task (demo + main task)
+
+  var n = 0 //keeps track of number of trials gone by
+  var selection = jsPsych.randomization.sampleWithoutReplacement(possibleLetters, setSizes[n])
+  var selection_id = 0 //keeps track of recall items within a test stack
+
+  var nLetterRecalled = 0 // feedback
+  var nMathAcc = 0 // feedback
+
+  var cogloadf = function(correct){  // generates math questions
+    var possibleOperations = [" + ", " - "]
+    operation = jsPsych.randomization.sampleWithReplacement(possibleOperations, 1)[0]
+    if (operation==" + "){
+      num1 = Math.floor(jStat.uniform.sample(1, 11))
+      num2 =  Math.floor(jStat.uniform.sample(1, 11))
+      ans = num1 + num2
+    } else if (operation==" - "){
+      num1 = Math.floor(jStat.uniform.sample(1, 11))
+      num2 = Math.floor(jStat.uniform.sample(1, num1))
+      ans = num1 - num2
+    }
+    if (!correct){   // generates incorrect answers
+      ansDiff = jsPsych.randomization.sampleWithReplacement([1,2],1)[0]
+      coinFlip = jsPsych.randomization.sampleWithReplacement([true, false],1)[0]
+      if (coinFlip){
+        ans += ansDiff
+      } else {
+        ans -= ansDiff
+      }
+      if (ans<0){
+        ans += 2*ansDiff //ensuring no negative incorrect answers
+      }
+    }
+    return '<div style="font-size:46px;">'+num1+operation+num2+' = '+ans+'<br><br><br><br></div>'
+  }
+
+var instructions = {
+    type: 'instructions',
+    pages: function(){
+      pageOne = '<div style="font-size:20px;"><b>INSTRUCTIONS</b><br><br><br>This is the operation span task. <br><br>This task has two parts: <br>(1) Letter memorization <br>(2) Math problem solving<br><br><br></div>'
+      pageTwo = '<div style="font-size:20px;">We will first practice LETTER MEMORIZATION.<br><br>A sequence of letters will appear on the screen one at a time (around 3 to 6 in a trial).<br>Try to remember each letter in the order presented.<br><br>After letter presentation, you will see a screen listing 12 possible letters.<br>Your task is to select each letter that was presented in its correct presentation order. <br><br>Use the mouse to select the appropriate letters <br>If you make a mistake use the provided "Backspace" button to clear your last response. <br><br>Remember, it is important that you select the letters in the order that you saw them.<br> So if you forget one of the letters, guess the best you can for that one, and select the rest in their correct order.<br><br>Press "Next" for practice trials.<br><br></div>'
+      return [pageOne, pageTwo]//, pageThree]
+    },
+    allow_backward: false,
+    button_label_next: "Next",
+    show_clickable_nav: true
+  }
+
+  var instructions2 = {
+    type: 'instructions',
+    pages: function(){
+      pageOne = '<div style="font-size:20px;">You will next practice MATH PROBLEM SOLVING.<br><br>A simple math equation will appear on the screen, like this:<br>3 + 4 = 7<br>Your task is to solve the math problem and determine if the answer provided to it is correct.<br><br>For example, if you see the following problem:<br>2 + 3 = 5<br>you should click the <b>"True"</b> button because 2 and 3 added together equals 5.<br><br>If you see the following problem:<br>2 + 3 = 6<br>you should click the <b>"False"</b> button because 2 and 3 added together DOES NOT equal 6.<br><br>Please ask the Research Assistant if you have not understood the task.<br>Press "Next" to start practicing math problem solving.<br><br></div>'
+      return [pageOne]
+    },
+    allow_backward: false,
+    button_label_next: "Next",
+    show_clickable_nav: true
+  }
+
+  var instructions3 = {
+    type: 'instructions',
+    pages: function(){
+      pageOne = '<div style="font-size:20px;">We will now practice the two tasks together.<br><br>In the next practice set, you will first be presented with a letter.<br>Try and remember that letter.<br>After the letter dissapears, you will be provided with a math problem<br>and you have to judge if the answer provided is true or false.<br><br>It is important to work QUICKLY and ACCURATELY on the math problem.<br>Each math problem will be presented for only 6 seconds.<br><br></div>'
+      pageTwo = '<div style="font-size:20px;">After the math problem, you will be shown another letter to remember,<br>which will be followed by another math problem.<br><br>Therefore, letter presentations and math problems will alternate.<br>After 3 to 6 letters have been presented, the recall screen will appear.<br>Use the mouse to select the presented letters in their correct order.<br><br>Do you have any questions?<br>Press "Next" to start practice rounds.<br><br></div>'
+      return [pageOne, pageTwo]
+    },
+    allow_backward: false,
+    button_label_next: "Next",
+    show_clickable_nav: true,
+    on_finish: function(){
+      nMathAcc = 0
+    }
+  }
+
+  var instructions4 = {
+    type: 'instructions',
+    pages: function(){
+      pageOne = '<div style="font-size:20px;">We have finished with the practice trials.<br><br><b>We will now start with the main trials.</b><br>Proceed only if you have understood the task.<br><br>Press "Next" to start the main trials.<br><br></div>'
+      return [pageOne]
+    },
+    allow_backward: false,
+    button_label_next: "Next",
+    show_clickable_nav: true
+  }
+
+  var cog_load_demo = {
+    type: 'html-button-operationspan',
+    equation_accuracy: function(){
+        nCogLoadDemo +=1
+        if (nCogLoadDemo==1){
+          eqCorrect = true
+        } else if (nCogLoadDemo==2){
+          eqCorrect = false
+        } else {
+          eqCorrect = jsPsych.randomization.sampleWithReplacement([true, false], 1)[0]
+        }
+        return eqCorrect
+      },
+    stimulus: function(){
+      return cogloadf(eqCorrect)
+    },
+    choices: ["True", "False"],
+    on_finish: function(){
+      var acc = jsPsych.data.get().last(1).values()[0].accuracy;
+      if (acc==1){
+        nMathAcc+=1
+      }
+    }
+  }
+
+var cog_load = {
+  type: 'html-button-operationspan',
+  equation_accuracy: function(){
+      eqCorrect = jsPsych.randomization.sampleWithReplacement([true, false], 1)[0]
+      return eqCorrect
+  },
+  stimulus: function(){
+    return cogloadf(eqCorrect)
+  },
+  trial_duration:6000,
+  choices: ["True", "False"],
+  on_finish: function(){
+    var acc = jsPsych.data.get().last(1).values()[0].accuracy;
+    if (acc==1){
+      nMathAcc+=1
+    }
+  }
+}
+
+var test_stimuli = {
+  type: 'html-keyboard-response',
+  stimulus: function(){
+    return '<div style="font-size:70px;">'+selection[selection_id]+'<br><br><br><br></div>'
+  },
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 1000,
+  on_finish: function(){
+    selection_id += 1
+  }
+}
+
+
+var end_test_stimuli = {
+  type: 'html-keyboard-response',
+  stimulus: " ",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 0,
+  on_finish: function(){
+     if (selection_id>=selection.length){
+         jsPsych.endCurrentTimeline()
+       }
+     }
+ }
+
+var recall = {
+  type: 'operation-span-recall',
+  correct_order: function(){
+    return selection
+  },
+  data: function(){
+    return {set_size: setSizes[n]}
+  },
+  on_finish: function(){
+    nLetters = setSizes[n]
+    nLettersRecalled = jsPsych.data.get().last(1).values()[0].accuracy;
+    n+=1
+    selection = jsPsych.randomization.sampleWithoutReplacement(possibleLetters, setSizes[n])
+    selection_id = 0
+  }
+}
+
+var feedback = {
+    type: 'instructions',
+    pages: function(){
+      pageOne = "<div style='font-size:20px;'><b>You recalled <font color='blue'>"+nLettersRecalled+" out of "+nLetters+"</font> letters in their correct order.</b><br><br>"
+      if (n>nPracticeTrials){
+        pageOne+= "You solved <font color='blue'>"+nMathAcc+" out of "+nLetters+"</font> math problems accurately.<br><br></div>"
+      }
+      return [pageOne]
+    },
+    allow_backward: false,
+    button_label_next: "Next Trial",
+    show_clickable_nav: true,
+    on_finish: function(){
+      nMathAcc = 0
+    }
+  }
+
+  var feedbackLoad = {
+    type: 'html-keyboard-response',
+    stimulus: function(){
+      var text = ""
+      var accuracy = jsPsych.data.get().last(1).values()[0].accuracy
+      if (accuracy==1){
+        text += '<div style="font-size:35px; color:rgb(0 220 0)"><b>Correct<br><br><br><br></div>'
+      } else{
+        text += '<div style="font-size:35px; color:rgb(240 0 0)"><b>Incorrect<br><br><br><br></div>'
+      }
+      //text += '<div style="font-size:30px; color:rgb(0 0 0)"><br><br>New trial starting now.</div>'
+      return text
+    },
+    choices: jsPsych.NO_KEYS,
+    trial_duration: 1000
+  }
+
+  var conclusion = {
+    type: 'html-keyboard-response',
+    stimulus: function(){
+      return '<div style="font-size:20px;">This task is over.<br><br>Thank you for your participation in this task. <br><br>Please tell the Research Assistant that you have finished the task.</div>'
+  },
+    choices: jsPsych.NO_KEYS
+  }
+
+  var p_details = {
+    type:"survey-text",
+    questions: [{prompt: "Enter subject number"}],
+    on_finish:function(){
+      partN = jsPsych.data.get().last(1).values()[0].partNum
+      partN = partN.replace(/['"]+/g,'')
+    //  console.log(partN)
+    }
+  }
+
+  function saveData(filename, filedata){
+        $.ajax({
+              type:'post',
+              cache: false,
+              url: 'save_data.php', // this is the path to the above PHP script
+              data: {filename: filename, filedata: filedata}
+        });
+  };
+
+  var IDsub = Date.now()
+  var dataLog = {
+   type: 'html-keyboard-response',
+   stimulus: " ",
+   trial_duration: 100,
+   on_finish: function(data) {
+     var data = jsPsych.data.get().filter([{trial_type:'operation-span-recall'}, {trial_type:'html-button-operationspan'}]);
+     if (file_name == null){
+       file_name = "WM_operation_span_"+partN+"_"+IDsub.toString()+".csv"}
+     else{
+       file_name += ".csv"
+     }
+     if (local){
+       data.localSave('csv', file_name )
+     } else {
+       saveData(file_name, data.csv());
+     }
+  }
+  }
+
+
+  var test_stack = {
+    timeline: [test_stimuli, cog_load, end_test_stimuli],
+    repetitions: 10
+  }
+
+  var test_procedure = {
+    timeline: [test_stack, recall, feedback],
+    repetitions: nTrials
+  }
+
+  var lettersDemoStack = {
+    timeline: [test_stimuli, end_test_stimuli],
+    repetitions: 10
+  }
+
+  var lettersDemo = {
+    timeline: [lettersDemoStack, recall, feedback],
+    repetitions: nPracticeTrials
+  }
+
+  var loadDemo = {
+    timeline: [cog_load_demo, feedbackLoad],
+    repetitions: 5
+  }
+
+  var fullDemo = {
+    timeline: [test_stack, recall, feedback],
+    repetitions: nfullDemo
+  }
+
+  timeline = [p_details]
+  timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: true
+  });
+
+  timeline = timeline.concat([instructions, lettersDemo, instructions2, loadDemo, instructions3, fullDemo, instructions4, test_procedure])
+  timeline.push({
+  type: 'fullscreen',
+  fullscreen_mode: false
+  });
+  timeline.push(dataLog)
+  timeline.push(conclusion)
+
+jsPsych.init({
+  timeline: timeline,
+  on_finish: function() {
+    jsPsych.data.displayData();
+  }
+});
+</script>
+</html>
