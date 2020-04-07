@@ -2,7 +2,7 @@
 Working memory tests designed on JavaScript
 
 
-Four classic working memory tests (WM) are included in this directory. All have been designed on JavaScript using the jsPsych library (https://www.jspsych.org/). I have previously used these working memory tests in lab experiments and data from these experiments have also been included in this directory. My paper resulting from these experiments can be found here: https://mindmodeling.org/cogsci2019/papers/0141/index.html. Please cite this paper if using the tests or the data.
+Four classic working memory (WM) tests are included in this directory. All have been designed on JavaScript using the jsPsych library (https://www.jspsych.org/). I have previously used these working memory tests in lab experiments and data from these experiments have also been included in this directory. My paper resulting from these experiments can be found here: https://mindmodeling.org/cogsci2019/papers/0141/index.html. Please cite this paper if using the tests or the data.
 
 Since these test tests are browser based, they can be conveniently used for online experiments (e.g., on MTurk). However, given that online experiments have less controlled environments, the reliability of these tests might be affected. In my lab experiments, I obtained a high split half reliability.
 
