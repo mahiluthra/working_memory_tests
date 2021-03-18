@@ -16,3 +16,5 @@ Since these test tests are browser based, they can be conveniently used for onli
 
 
 Each of these tasks can be customized to some extent (number of trials, set size in trials, trial duration etc). Easily customizable variables have been listed at the top of each code. Please download and unzip all the folders in this directory for use of any of the tasks ('jspsych-6.0.4' and 'img'). Results from the task can either be stored locally or on a server (through use of an included .php script). Please cite the paper (https://mindmodeling.org/cogsci2019/papers/0141/index.html) if using the tests or the data. If more information is needed, get in touch :)
+
+APA Citation: [Luthra, M., & Todd, P. M. (2019). Role of working memory on strategy use in the probability learning task. In A. Goel, C. Seifert, & C. Freksa (Eds.), Proceedings of the 41st Annual Conference of the Cognitive Science Society (pp. 721–728). Montreal, QB: Cognitive Science Society.]
