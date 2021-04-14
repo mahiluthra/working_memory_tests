@@ -39,7 +39,7 @@
     local = true // save the data file locally.
                 // If this test is being run online (e.g., on MTurk), true will cause the file to be downloaded to the participant's computer.
                 // If this test is on a server, and you wish to save the data file to that server, change this to false.
-                // If changed to false, ensure that the php file (its in the folder!) and the "data" folder has also been appropriately uploaded to the server.
+                // If changed to false, ensure that the php file (its in the directory!) and the empty "data" folder has also been appropriately uploaded to the server.
                 // Incase of problems, feel free to contact me :)
 
   //----------------------------------------------------------------------
@@ -217,7 +217,7 @@ jsPsych.init({
   timeline: timeline,
   preload_images: images,
   on_finish: function() {
-    jsPsych.data.displayData();
+    jsPsych.data.displayData(); // comment out if you do not want to display results at the end of task
   }
 });
 </script>
