@@ -4,7 +4,7 @@ Working memory experiment tasks designed on JavaScript
 
 Four classic working memory (WM) tests are included in this directory. All have been designed on JavaScript using the jsPsych library (https://www.jspsych.org/). These WM tests have previously been used in lab experiments (data from experiments is included in directory). Paper resulting from these experiments can be found here: https://mindmodeling.org/cogsci2019/papers/0141/index.html.
 
-Since these test tests are browser based, they can be conveniently used for online experiments (e.g., on MTurk). However, given that online experiments have less controlled environments, the reliability of WM measures might be affected.
+Since these tasks are browser based, they can be conveniently used for online experiments (e.g., on MTurk). However, given that online experiments have less controlled environments, the reliability of WM measures might be affected.
 
 1) **Digit span test.** This is a verbal-numeric WM storage task. Methods from this test resemble those descibed in Woods et al (2011; https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2978794/). Participants are required to memorize a string of digits and recall them. A demonstration of the task can be viewed here: https://www.indiana.edu/~abcwest/mkl/WM_battery/digit_span_task.html.
 
