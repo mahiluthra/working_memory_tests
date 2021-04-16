@@ -1,5 +1,5 @@
 # working_memory_tests
-Working memory tests designed on JavaScript
+Working memory experiment tasks designed on JavaScript
 
 
 Four classic working memory (WM) tests are included in this directory. All have been designed on JavaScript using the jsPsych library (https://www.jspsych.org/). These WM tests have previously been used in lab experiments (data from experiments is included in directory). Paper resulting from these experiments can be found here: https://mindmodeling.org/cogsci2019/papers/0141/index.html.
