@@ -1,4 +1,4 @@
-# working_memory_tests
+# Working Memory Tests
 Working memory experiment tasks designed on JavaScript
 
 
